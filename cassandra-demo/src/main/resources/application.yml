@@ -1,0 +1,16 @@
+server:
+  port: 8888
+
+spring:
+  data:
+    cassandra:
+      keyspace-name: school
+      #entity-base-packages:
+      contact-points: 172.27.106.180
+      port: 9042
+      cluster-name: Test Cluster
+      username: cassandra
+      password: 123456
+      consistency-level: ONE
+      serial-consistency-level: ONE
+

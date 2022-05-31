@@ -1,0 +1,225 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+    xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:w="urn:schemas-microsoft-com:office:word"
+    xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <style type="text/css">
+        table  
+        {  
+            border-collapse: collapse;
+            border: none;  
+            width: 100%;  
+        }  
+        td,tr  
+        {  
+            border: solid #CCC 1px;
+            padding:3px;
+            font-size:9pt;
+        } 
+        .codestyle{
+            word-break: break-all;
+            mso-highlight:rgb(252, 252, 252);
+            padding-left: 5px; background-color: rgb(252, 252, 252); border: 1px solid rgb(225, 225, 232);
+        }
+        img {
+            width:100;
+        }
+    </style>
+    <meta name=ProgId content=Word.Document>
+    <meta name=Generator content="Microsoft Word 11">
+    <meta name=Originator content="Microsoft Word 11">
+    <xml><w:WordDocument><w:View>Print</w:View></xml></head>
+    <body><h1>1、01 基本概念</h1><div style="margin-left:20px;"><h1>. cassandra介绍</h1>
+<ol>
+<li>概述
+Cassandra是一套开源分布式NoSQL数据库系统。它最初由Facebook开发，用于储存收件箱等简单格式数据，集GoogleBigTable的数据模型与Amazon Dynamo的完全分布式的架构于一身Facebook于2008将 Cassandra 开源，此后，由于Cassandra良好的可扩展性，被Digg、Twitter等知名Web 2.0网站所采纳，成为了一种流行的分布式结构化数据存储方案。</li>
+<li>官方文档地址
+<a href="https://cassandra.apache.org/doc/latest/cassandra/getting_started/index.html">https://cassandra.apache.org/doc/latest/cassandra/getting_started/index.html</a></li>
+<li>特点
+弹性可扩展性 - Cassandra是高度可扩展的; 它允许添加更多的硬件以适应更多的客户和更多的数据根据要求。
+始终基于架构 - Cassandra没有单点故障，它可以连续用于不能承担故障的关键业务应用程序。
+快速线性性能 - Cassandra是线性可扩展性的，即它为你增加集群中的节点数量增加你的吞吐量。因此，保持一个快速的响应时间。
+灵活的数据存储 - Cassandra适应所有可能的数据格式，包括：结构化，半结构化和非结构化。它可以根据您的需要动态地适应变化的数据结构。
+便捷的数据分发 - Cassandra通过在多个数据中心之间复制数据，可以灵活地在需要时分发数据。
+事务支持 - Cassandra支持属性，如原子性，一致性，隔离和持久性（ACID）。
+快速写入 - Cassandra被设计为在廉价的商品硬件上运行。 它执行快速写入，并可以存储数百TB的数据，而不牺牲读取效率。</li>
+</ol>
+<h1>. cassandra安装，简单使用</h1>
+<ol>
+<li>安装教程
+<a href="https://blog.csdn.net/cw1254332663/article/details/102561769">https://blog.csdn.net/cw1254332663/article/details/102561769</a></li>
+<li>cassandra开发环境地址
+172.27.106.180</li>
+<li>启动cassandra
+/opt/cassandra-3.11/bin/cassandra -R</li>
+<li>关闭cassandra
+ps -ef|grep cassandra
+kill -9 pid</li>
+<li>查看集群状态
+/opt/cassandra-3.11/bin/nodetool status</li>
+<li>使用客户端连接
+/opt/cassandra-3.11/bin/cqlsh 127.0.0.1 9042</li>
+</ol>
+<h1>cassandra端口</h1>
+<p>7199 - JMX
+7000 - 节点间通信（如果启用了TLS，则不使用）
+7001 - TLS节点间通信（使用TLS时使用）
+9160 - Thrift客户端API
+9042 - CQL本地传输端口</p>
+<h1>cassandra.yaml内容</h1>
+<p>官网地址:<a href="https://cassandra.apache.org/doc/latest/cassandra/configuration/cass_yaml_file.html">https://cassandra.apache.org/doc/latest/cassandra/configuration/cass_yaml_file.html</a>
+cluster_name：集群的名字。对于这个属性的配置可以防止某个节点加入到其他集群中去，所以一个集群中的节点必须有相同的cluster_name属性。
+listen_address：Cassandra需要监听的IP或主机名。建议配置私有IP，不要用0.0.0.0。
+commitlog_directory：commit log的保存目录，把这个目录和数据目录分开存放到不同的物理磁盘可以提高性能。
+data_file_directorie：数据文件的存放目录。建议使用RAID 0或SSD。
+save_caches_directory：保存表和行的缓存。</p>
+<h1>cassandra基本概念</h1>
+<ol>
+<li>
+<p>列（Column）
+列是Cassandra的基本数据结构单元，具有三个值：名称，值、时间戳
+在Cassandra中不需要预先定义列（Column），只需要在KeySpace里定义列族，然后就可以开始写数据了。</p>
+</li>
+<li>
+<p>列簇(Column Family)
+列族相当于关系数据库的表（Table），是包含了多行（Row）的容器。
+ColumnFamily的结构举例，如图：
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/134ba29b91347ac69905489ddfb9923f&showdoc=.jpg" alt="" />
+可以理解为Java结构 Map>，如图：
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/23d97f9665afedc4c8804b054042a522&showdoc=.jpg" alt="" />
+1) ColumnFamily 的2种类型
+--静态column family(static column family)
+静态的column family,字段名是固定的，比较适合对于这些column都有预定义的元数据
+--动态column family(dynamic column family)
+动态的column family，字段名是应用程序计算出来并且提供的，所以column family只能定义这些字段的类型，无法不可以指定这些字段的名字和值，这些名字和值是由应用程序插入某字段才得出的。
+2) Row key
+ColumnFamily 中的每一行都用Row Key（行键）来标识，这个相当于关系数据库表中的主键，并且总是被索引的。
+3) 主键
+如果 Primary Key 由一列组成，那么称为 <strong>Single column Primary Key</strong>
+如果 Primary Key 由多列组成，那么这种情况称为 <strong>Compound Primary Key 或 Composite Primary Key</strong></p>
+</li>
+<li>
+<p>建空间 （KeySpace）
+<strong>Cassandra的键空间（KeySpace）相当于数据库，我们创建一个键空间就是创建了一个数据库。
+</strong>
+键空间包含一个或多个列族（Column Family）
+注意：一般将有关联的数据放到同一个 KeySpace 下面
+建空间 （KeySpace） 创建的时候可以指定一些属性：副本因子，副本策略，Durable_writes（是否启用 CommitLog与写日志 机制）</p>
+<p>1） 副本因子
+副本因子决定数据有几份副本。例如：
+副本因子为1表示每一行只有一个副,。副本因子为2表示每一行有两个副本，每个副本位于不同的节点上。在实际应用中为了避免单点故障，会配置为3以上。
+2）副本放置策略 （Replica placement strategy）描述的是副本放在集群中的策略
+3）Durable_writes 否对当前KeySpace的更新使用commitlog，默认为true</p>
+</li>
+<li>副本 （Replication）
+副本就是把数据存储到多个节点，来提高容错性</li>
+<li>节点（Node）
+存储数据的机器</li>
+<li>数据中心（DateCenter）</li>
+<li>集群（Cluster）
+Cassandra数据库是为跨越多条主机共同工作，对用户呈现为一个整体的分布式系统设计的。Cassandra最外层容器被称为群集。Cassandra将集群中的节点组织成一个环（ring），然后把数据分配到集群中的节点（Node）上。</li>
+<li>超级列（Super Column）
+超级列是一种特殊的列。两种列都是键/值对。但标准列的值是字节组，而超级列的值是一个子列的映射，超级列不能存储其他超级列的映射，也就是说，超级列仅允许使用一层，但是会它不并不限制列的数量。
+超级列的数据结构包含它的名字和它存储的列，它的名字和标准列一样，但是存储的值是一个列的映射。</li>
+<li>数据类型
+1) 数值类型
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/66f80462100e0e029759fedfd3e1db06&showdoc=.jpg" alt="" />
+2）文本类型
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/fb3b0b136ac0b938e5da36a2620e49cf&showdoc=.jpg" alt="" />
+3）时间类型
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/d64e8ab37228fd31ffa662298cdf5d1f&showdoc=.jpg" alt="" />
+4）标识符类型
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/1983656214c14edc152f78a1f8326f14&showdoc=.jpg" alt="" />
+5）集合类型
+set：集合数据类型，set 里面的元素存储是无序的，set 里面可以存储前面介绍的数据类型，也可以是用户自定义数据类型，甚至是其他集合类型。
+list：list 包含了有序的列表数据，默认情况下，数据是按照插入顺序保存的。
+map：map 数据类型包含了 key/value 键值对。key 和 value 可以是任何类型，除了 counter 类型
+使用集合类型要注意： 1、集合的每一项最大是64K。 2、保持集合内的数据不要太大，免得Cassandra 查询延时过长，Cassandra 查询时会读出整个集合内的数据，集合在内部不会进行分页，集合的目的是存储小量数据。 3、不要向集合插入大于64K的数据，否则只有查询到前64K数据，其它部分会丢失。
+6）其他基本类型
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/a3bab4105c460964a3a180a997115c74&showdoc=.jpg" alt="" />
+7）用户自定义类型
+CQL Shell 简称cqlsh，是一个可以和Cassandra数据库通信的客户端，使用这个cqlsh客户端可以执行Cassandra查询语言（CQL）。</li>
+</ol></div><h1>2、02 springboot集成</h1><div style="margin-left:20px;"><h1>. java连接cassandra的方式</h1>
+<ol>
+<li>Spring Data for Apache Cassandra</li>
+<li>datastax的java-driver</li>
+</ol>
+<h1>. demo参考代码</h1>
+<p><a href="https://github.com/liarboss/learn_cassandra.git">https://github.com/liarboss/learn_cassandra.git</a></p>
+<h1>Spring Data for Apache Cassandra</h1>
+<ol>
+<li>pom引入依赖
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/0f065da2cd69944c10f375db0632fd94&showdoc=.jpg" alt="" /></li>
+<li>配置yml
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/4a2461c666e7dd20f05fd2bef469b9bd&showdoc=.jpg" alt="" /></li>
+<li>配置configure
+参考com.tdt.boot.conf.CassandraConfig</li>
+<li>编写代码，测试用例
+参考
+com.tdt.boot.repository.StudentRepository
+com.tdt.boot.service.StudentService
+com.tdt.boot.TestSpringCassandra</li>
+</ol>
+<h1>datastax的java-driver</h1>
+<ol>
+<li>pom引入依赖
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/a7d2369e9cfc5752dda02211846130c9&showdoc=.jpg" alt="" />
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/673534701cccdee26aba16dbe1a0f078&showdoc=.jpg" alt="" /></li>
+<li>编写测试用例
+参考
+com.tdt.boot.TestKeySpace
+com.tdt.boot.TestTable</li>
+</ol>
+<h1>测试用例包含功能</h1>
+<ol>
+<li>查询keyspace</li>
+<li>创建keyspace</li>
+<li>删除keyspace</li>
+<li>建table</li>
+<li>更新table</li>
+<li>删除table</li>
+<li>插入语句</li>
+<li>插入mapper</li>
+<li>查询all</li>
+<li>查询one</li>
+<li>根据id查询</li>
+<li>根据id删除</li>
+<li>批量插入</li>
+</ol></div><h1>3、03 存储时序数据</h1><div style="margin-left:20px;"><h1>. Time Window Compaction Strategy : 工作原理以及使用建议</h1>
+<table width='100%' class='codestyle'><pre><code>Cassandra使用LSM - tree 的引擎，这个引擎通过异步刷新不可变的数据块以sstable的形式落到磁盘上面以达到写入的高吞吐。随着时间推移，更多的sstable写入磁盘，最终会造成一个partition的数据存在于多个sstable中，降低了读写的性能。为了限制数据碎片，我们使用一个叫做compaction的进程去合并sstable。在cassandra中有一些可用的compaction策略可以达到合并的目的，这些策略是设计用来适应不同的数据模型和负载的。
+Date Tiered Compaction Strategy (DTCS) 是在2014年被引入并希望降低写放大并变成了time series数据的compact策略标准。写放大是说数据被反复写入而不是仅仅一次。多次写入数据会造成I/O消耗，降低磁盘（比如ssd）的使用寿命且阻碍了别的进程对磁盘的使用。这个策略在实际环境中也有一系列自己的缺点，比如一些复杂的参数就让她很难推测使用。
+在Crowdstrike工作的系统工程师Jeff Jirsa，同时现在是Cassandra的committer 以及PMC成员，创造了Time Window Compaction Strategy (TWCS)。
+TWCS通过移除DTCS的分层特性来消除DTCS的一些缺点，而不是选择在时间窗口的sstable组上执行STCS。她使用sstable的最大时间戳而不是最小时间戳来决定哪个SStable属于哪个时间窗口。</code></pre></table>
+<h1>. 几种常见的压缩策略</h1>
+<p><img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/71982bc4e5b1531844f43e087f0985e1&showdoc=.jpg" alt="" /></p>
+<h1>. cassandra中的生存时间TTL</h1>
+<p><img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/ff84f665c94164bb797bdc3466b95439&showdoc=.jpg" alt="" />
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/a8cca99a070559d94738663a2584afea&showdoc=.jpg" alt="" />
+<img width=500 src="http://172.27.106.79/server/index.php?s=/api/attachment/visitFile/sign/78ef3017f4dcc3801917541785a8776c&showdoc=.jpg" alt="" /></p>
+<h1>. 物联网数据存储记录</h1>
+<ol>
+<li>
+<p>创建keyspace
+CREATE KEYSPACE troila WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 2};</p>
+</li>
+<li>
+<p>建表
+CREATE TABLE troila_rawdata_by_day (
+clientid text,
+day text,
+ts timeuuid,
+value int,
+primary key((clientid, day), ts)
+) WITH CLUSTERING ORDER BY (ts DESC)
+AND COMPACTION = {'class': 'TimeWindowCompactionStrategy',
+'compaction_window_unit': 'DAYS',
+'compaction_window_size': 1};</p>
+</li>
+<li>
+<p>插入语句
+INSERT INTO troila_rawdata_by_day(clientid, day, ts, value)
+VALUES ('xxx123456', '2022-05-31', now(), 25);</p>
+</li>
+<li>查询
+select * from troila_rawdata_by_day where clientid='xxx123456' and day = '2022-05-31';</li>
+</ol></div></body></html>
